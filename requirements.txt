@@ -1,4 +1,2 @@
 pybullet
-pybullet_data
-pyrosim
 numpy
