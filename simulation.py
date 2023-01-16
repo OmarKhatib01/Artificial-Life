@@ -1,14 +1,10 @@
-from motor import MOTOR
 from robot import ROBOT
-from sensor import SENSOR
 from world import WORLD
 
 import pybullet as p
 import pybullet_data
-import pyrosim.pyrosim as pyrosim
 import time
-import numpy
-import random
+
 import constants as c
 
 
@@ -25,7 +21,7 @@ class SIMULATION:
     def Run(self):
         for i in range(1000):
             # print(i)
-            time.sleep(1/1000)
+            time.sleep(1/100)
             p.stepSimulation()
             self.robot.Sense(i)
             self.robot.Act(i)
@@ -33,5 +29,5 @@ class SIMULATION:
 
     def __del__(self):
         p.disconnect()
-        MOTOR.Save_Values()
-        SENSOR.Save_Values()
+        # MOTOR.Save_Values()
+        # SENSOR.Save_Values()

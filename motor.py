@@ -9,9 +9,15 @@ class MOTOR:
         self.Prepare_To_Act()
 
     def Prepare_To_Act(self):
-        self.amplitude = c.amplitude
-        self.frequency = c.frequency
-        self.phaseOffset = c.phaseOffset
+        if self.jointName == b'Torso_Frontleg':
+            self.amplitude = c.amplitude_fl
+            self.frequency = c.frequency_fl
+            self.phaseOffset = c.phaseOffset_fl
+        else:
+            self.amplitude = c.amplitude
+            self.frequency = c.frequency
+            self.phaseOffset = c.phaseOffset
+
         self.motorValues = numpy.sin(self.frequency*numpy.linspace(0, 2*numpy.pi, 1000)+self.phaseOffset)*self.amplitude
 
     def Set_Value(self, step, robotId):
