@@ -1,4 +1,6 @@
+from motor import MOTOR
 from robot import ROBOT
+from sensor import SENSOR
 from world import WORLD
 
 import pybullet as p
@@ -22,27 +24,14 @@ class SIMULATION:
 
     def Run(self):
         for i in range(1000):
-            print(i)
-            time.sleep(1/500)
+            # print(i)
+            time.sleep(1/1000)
             p.stepSimulation()
-            # backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("Backleg")
-            # frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("Frontleg")
-            # pyrosim.Set_Motor_For_Joint(
-            #     bodyIndex = robotId,
-            #     jointName = b'Torso_Backleg',
-            #     controlMode = p.POSITION_CONTROL,
-            #     targetPosition = backLegMotorAngles[i],
-            #     maxForce = 50
-            #     )
-
-            # pyrosim.Set_Motor_For_Joint(
-            #     bodyIndex = robotId,
-            #     jointName = b'Torso_Frontleg',
-            #     controlMode = p.POSITION_CONTROL,
-            #     targetPosition = frontLegMotorAngles[i],
-            #     maxForce = 50
-            #     )
+            self.robot.Sense(i)
+            self.robot.Act(i)
 
 
-
-        
+    def __del__(self):
+        p.disconnect()
+        MOTOR.Save_Values()
+        SENSOR.Save_Values()
