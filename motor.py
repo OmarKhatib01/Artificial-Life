@@ -18,7 +18,7 @@ class MOTOR:
             self.frequency = c.frequency
             self.phaseOffset = c.phaseOffset
 
-        self.motorValues = numpy.sin(self.frequency*numpy.linspace(0, 2*numpy.pi, 1000)+self.phaseOffset)*self.amplitude
+        self.motorValues = numpy.sin(self.frequency*numpy.linspace(0, 2*numpy.pi, c.steps)+self.phaseOffset)*self.amplitude
 
     def Set_Value(self, step, robotId):
         pyrosim.Set_Motor_For_Joint(

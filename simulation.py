@@ -1,11 +1,11 @@
 from robot import ROBOT
 from world import WORLD
+import constants as c
 
 import pybullet as p
 import pybullet_data
 import time
 
-import constants as c
 
 
 
@@ -19,7 +19,7 @@ class SIMULATION:
         self.robot = ROBOT()
 
     def Run(self):
-        for i in range(1000):
+        for i in range(c.steps):
             # print(i)
             time.sleep(1/100)
             p.stepSimulation()
