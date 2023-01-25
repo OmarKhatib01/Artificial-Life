@@ -1,3 +1,5 @@
+import math
+import random
 import pyrosim.pyrosim as pyrosim
 
 # dimensions of the box
@@ -26,6 +28,11 @@ def Generate_Body():
 
 def Generate_Brain():
     pyrosim.Start_NeuralNetwork("brain.nndf")
+
+    for sensorNeuron in range(3):
+        for motorNeuron in range(3,5):
+            pyrosim.Send_Synapse( sourceNeuronName = sensorNeuron , targetNeuronName = motorNeuron , weight = math.tanh(random.random()))
+
     pyrosim.Send_Sensor_Neuron(name = 0 , linkName = "Torso")
     pyrosim.Send_Sensor_Neuron(name = 1 , linkName = "Backleg")
     pyrosim.Send_Sensor_Neuron(name = 2 , linkName = "Frontleg")    
@@ -33,10 +40,10 @@ def Generate_Brain():
     pyrosim.Send_Motor_Neuron(name = 3 , jointName = "Torso_Backleg")
     pyrosim.Send_Motor_Neuron(name = 4 , jointName = "Torso_Frontleg")
 
-    pyrosim.Send_Synapse( sourceNeuronName = 0 , targetNeuronName = 3 , weight = -1.0 )
-    pyrosim.Send_Synapse( sourceNeuronName = 1 , targetNeuronName = 3 , weight = -1.0 )
-    pyrosim.Send_Synapse( sourceNeuronName = 0 , targetNeuronName = 4 , weight = -3.0 )
-    pyrosim.Send_Synapse( sourceNeuronName = 2 , targetNeuronName = 4 , weight = -3.0 )
+    # pyrosim.Send_Synapse( sourceNeuronName = 0 , targetNeuronName = 3 , weight = -1.0 )
+    # pyrosim.Send_Synapse( sourceNeuronName = 1 , targetNeuronName = 3 , weight = -1.0 )
+    # pyrosim.Send_Synapse( sourceNeuronName = 0 , targetNeuronName = 4 , weight = -3.0 )
+    # pyrosim.Send_Synapse( sourceNeuronName = 2 , targetNeuronName = 4 , weight = -3.0 )
 
 
 
