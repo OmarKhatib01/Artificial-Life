@@ -1,10 +1,5 @@
 # cs-396-Alife - Omar Khatib
 
----
-title: cs-396-ALife-bots
-author: Omar Khatib
----
-
 ## Assignment 5 - Design Your Own Creature
 
 My program is designed to make a creature with 4 legs and 4 arms learn how to jump. To achieve the act of "jumping" in this evolutionary algorithm, a fitness function (`Get_Fitness()` in robot.py) records the fitness as a weighted sum of the longest time the 4 legs are off the ground denoted by `maxLen`, and the z coordinate of the torso denoted by `zposition`. 
