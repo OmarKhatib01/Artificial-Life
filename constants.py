@@ -1,12 +1,12 @@
 import numpy
 
-steps = 1500
+steps = 2000
 
-numberOfGenerations = 15
-populationSize = 15
+numberOfGenerations = 20
+populationSize = 10
 
-numSensorNeurons = 4
-numMotorNeurons = 4
+numSensorNeurons = 13
+numMotorNeurons = 12
 
 motorJointRange = 0.7
 

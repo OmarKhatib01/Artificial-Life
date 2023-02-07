@@ -1,4 +1,6 @@
+from motor import MOTOR
 from robot import ROBOT
+from sensor import SENSOR
 from world import WORLD
 import constants as c
 
@@ -18,12 +20,13 @@ class SIMULATION:
     def Run(self):
         for i in range(c.steps):
             # print(i)
-            if self.directOrGUI == "GUI":
-                time.sleep(1/10000)
+            # if self.directOrGUI == "GUI":
+            #     time.sleep(1/1000)
             p.stepSimulation()
             self.robot.Sense(i)
             self.robot.Think()
             self.robot.Act()
+            # print(self.robot.sensorValues)
 
     def Get_Fitness(self):
         self.robot.Get_Fitness()

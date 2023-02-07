@@ -1,3 +1,4 @@
+import numpy
 import pyrosim.pyrosim as pyrosim
 import pybullet as p
 import constants as c
@@ -21,11 +22,13 @@ class ROBOT:
     def Prepare_To_Sense(self):
         self.sensors = {}
         for linkName in pyrosim.linkNamesToIndices:
+            # print(linkName)
             self.sensors[linkName] = SENSOR(linkName)
 
     def Sense(self, step):
         for sensor in self.sensors:
             self.sensors[sensor].Get_Value(step)
+            
 
     def Prepare_To_Act(self):
         self.motors = {}
@@ -47,11 +50,30 @@ class ROBOT:
     def Get_Fitness(self):
         basePositionAndOrientation = p.getBasePositionAndOrientation(self.robotId)
         basePosition = basePositionAndOrientation[0]
-        xPosition = basePosition[0]
+        zPosition = basePosition[2]
+        # f = open(f'tmp{self.solutionID}.txt', "w")
+        # f.write(str(zPosition))
 
+
+
+        relevantLinks = ['BackLowerleg', 'FrontLowerleg', 'LeftLowerleg', 'RightLowerleg']
+        self.SensorValues = []
+        for linkName in relevantLinks:
+            # print(self.sensors[linkName].sensorValues)
+            self.SensorValues.append(numpy.mean(self.sensors[linkName].sensorValues))
+        flattenedSensorValues = numpy.ravel(self.SensorValues, order='F')
+        splitSensorValues = numpy.split(flattenedSensorValues, numpy.where(numpy.diff(flattenedSensorValues) != 0)[0]+1)
+        maxLen = 0
+        for i in range(len(splitSensorValues)):
+            if splitSensorValues[i][0]== -1:
+                maxLen = max(maxLen, len(splitSensorValues[i]))
         f = open(f'tmp{self.solutionID}.txt', "w")
-        f.write(str(xPosition))
+        # divide by 4 because each step is 4 values
+        # this is because the sensor values are stored in a 2D array and then flattened
+        # estimate but it seems to work
+        f.write(str(maxLen//4+zPosition*60))
+
+
+
         f.close()
         os.system(f'mv tmp{self.solutionID}.txt fitness{self.solutionID}.txt')
-
-

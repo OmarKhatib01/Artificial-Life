@@ -137,4 +137,4 @@ class NEURON:
 
     def Threshold(self):
 
-        self.value = math.tanh(self.value)
+        self.value = math.sin(self.value)
