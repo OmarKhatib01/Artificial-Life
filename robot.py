@@ -22,7 +22,6 @@ class ROBOT:
     def Prepare_To_Sense(self):
         self.sensors = {}
         for linkName in pyrosim.linkNamesToIndices:
-            # print(linkName)
             self.sensors[linkName] = SENSOR(linkName)
 
     def Sense(self, step):
@@ -33,7 +32,6 @@ class ROBOT:
     def Prepare_To_Act(self):
         self.motors = {}
         for jointName in pyrosim.jointNamesToIndices:
-            # print(jointName)
             self.motors[jointName] = MOTOR(jointName)
 
     def Act(self):
@@ -55,25 +53,23 @@ class ROBOT:
         # f.write(str(zPosition))
 
 
-
         relevantLinks = ['BackLowerleg', 'FrontLowerleg', 'LeftLowerleg', 'RightLowerleg']
         self.SensorValues = []
         for linkName in relevantLinks:
-            # print(self.sensors[linkName].sensorValues)
             self.SensorValues.append(numpy.mean(self.sensors[linkName].sensorValues))
+        
         flattenedSensorValues = numpy.ravel(self.SensorValues, order='F')
         splitSensorValues = numpy.split(flattenedSensorValues, numpy.where(numpy.diff(flattenedSensorValues) != 0)[0]+1)
         maxLen = 0
+
         for i in range(len(splitSensorValues)):
             if splitSensorValues[i][0]== -1:
                 maxLen = max(maxLen, len(splitSensorValues[i]))
+
         f = open(f'tmp{self.solutionID}.txt', "w")
-        # divide by 4 because each step is 4 values
-        # this is because the sensor values are stored in a 2D array and then flattened
+        # Divide by 4 because each step is 4 values. This is because the sensor values are stored in a 2D array and then flattened
+        # Multiply zposition by 60 to scale it to the same range as maxLen.
         # estimate but it seems to work
         f.write(str(maxLen//4+zPosition*60))
-
-
-
         f.close()
         os.system(f'mv tmp{self.solutionID}.txt fitness{self.solutionID}.txt')
