@@ -12,10 +12,6 @@ The fitness is then maximized through multiple parallel simulations over a numbe
 
 2. create a virtual environment for the directory 
 
-3. switch to the branch `assgmt5` by running 
-```
-git checkout assgmt5
-```
- in your console
+3. switch to the branch `assgmt5` by running `git checkout assgmt5` in your console
 
 4. run `main.py`
