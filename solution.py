@@ -19,6 +19,8 @@ class SOLUTION:
 
     def Generate_Link(self, shape, linkNumber, position, length, width, height):
         x, y, z = position
+        if linkNumber != c.numLinks - 1:
+            pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [-length, 0, 0], jointAxis="0 0 1")
         if shape == 'cube':
             pyrosim.Send_Cube(name=f'link{linkNumber}', pos=[x,y,z] , size=[length,width,height])
         elif shape == 'cylinder':
@@ -27,20 +29,19 @@ class SOLUTION:
             pyrosim.Send_Sphere(name=f'link{linkNumber}', pos=[x,y,z] , radius=length)
         else:
             return 'Invalid shape'
-        if linkNumber != c.numLinks - 1:
-            pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [length, 0, 0], jointAxis="0 1 0")
 
 
     def Generate_Body(self):
         pyrosim.Start_URDF("body.urdf")
         
-        pyrosim.Send_Sphere(name='Head', pos=c.initPosition , radius=c.length)
-        pyrosim.Send_Joint( name = 'Head_link0' , parent= 'Head' , child = 'link0' , type = "revolute", position = [1, 0, 0], jointAxis="0 1 0")
+        pyrosim.Send_Cube(name='Head', pos=c.initPosition , size=[c.length,c.width,c.height])
+        # pyrosim.Send_Sphere(name='Head', pos=c.initPosition , radius=c.length)
+        pyrosim.Send_Joint( name = 'Head_link0' , parent= 'Head' , child = 'link0' , type = "revolute", position = [-2, 0, 1], jointAxis="0 0 1")
         position = c.initPosition
         length, width, height = c.length, c.width, c.height
         for i in range(c.numLinks):
             length, width, height = random.uniform(1, 2), random.uniform(1, 2), random.uniform(1, 2)
-            position = [position[0] + length/2, position[1], position[2]]
+            position = [-length/2, 0, 0]
             self.Generate_Link(random.choice(c.linkShapes), 
                             i, position,
                             length= length,
@@ -65,8 +66,6 @@ class SOLUTION:
 
 
         pyrosim.End()
-
-
     
 
     def Start_Simulation(self, directOrGUI):
