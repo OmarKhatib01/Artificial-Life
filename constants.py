@@ -1,9 +1,14 @@
 import numpy
 
-steps = 2000
+numLinks = 1
+linkShapes = ['cube', 'sphere'] # 'sphere', 'cylinder'
+initPosition = [0, 0, 0.5]
+length, width, height = 1, 1, 1
 
-numberOfGenerations = 20
-populationSize = 10
+steps = 5000
+
+numberOfGenerations = 1
+populationSize = 1
 
 numSensorNeurons = 13
 numMotorNeurons = 12
