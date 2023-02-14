@@ -1,11 +1,11 @@
 import numpy
 
-numLinks = 4
+numLinks = 5
 linkShapes = ['cube', 'sphere', 'cylinder']
-initPosition = [0, 0, 2]
-length, width, height =4, 4, 4
+initPosition = [0, 0, 1]
+length, width, height =1, 1, 1
 
-steps = 5000
+steps = 1000
 
 numberOfGenerations = 1
 populationSize = 1

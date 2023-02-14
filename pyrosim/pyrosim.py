@@ -106,7 +106,7 @@ def Prepare_To_Simulate(bodyID):
 
     Prepare_Joint_Dictionary(bodyID)
 
-def Send_Link(name,pos, objectType, size):
+def Send_Link(name,pos, objectType, size, hasSensor):
 
     global availableLinkIndex
 
@@ -120,7 +120,7 @@ def Send_Link(name,pos, objectType, size):
 
         links.append(link)
     else:
-        link = LINK_URDF(name,pos,size, objectType)
+        link = LINK_URDF(name,pos,size, objectType, hasSensor)
 
         links.append(link)
 
@@ -134,17 +134,17 @@ def Send_Link(name,pos, objectType, size):
 
     availableLinkIndex = availableLinkIndex + 1
 
-def Send_Cube(name="default",pos=[0,0,0],size=[1,1,1]):
+def Send_Cube(name="default",pos=[0,0,0],size=[1,1,1], hasSensor=False):
 
-    Send_Link(name,pos,"box", size)
+    Send_Link(name,pos,"box", size, hasSensor)
 
-def Send_Sphere(name="default",pos=[0,0,0],radius=0.5):
+def Send_Sphere(name="default",pos=[0,0,0],radius=0.5, hasSensor=False):
 
-    Send_Link(name, pos, "sphere", size=[radius])
+    Send_Link(name, pos, "sphere", [radius], hasSensor)
 
-def Send_Cylinder(name="default",pos=[0,0,0],length=0.5, radius=1):
+def Send_Cylinder(name="default",pos=[0,0,0],length=0.5, radius=1, hasSensor=False):
 
-    Send_Link(name,pos,"cylinder", size=[length, radius])
+    Send_Link(name,pos,"cylinder", [length, radius], hasSensor)
 
 def Send_Joint(name,parent,child,type,position, jointAxis):
 
