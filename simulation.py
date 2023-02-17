@@ -23,7 +23,7 @@ class SIMULATION:
         for i in range(c.steps):
             # print(i)
             if self.directOrGUI == "GUI":
-                time.sleep(1/1000)
+                time.sleep(1/100)
             p.stepSimulation()
             self.robot.Sense(i)
             self.robot.Think()

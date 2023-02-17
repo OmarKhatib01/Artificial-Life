@@ -24,44 +24,75 @@ class SOLUTION:
         pyrosim.Start_SDF("world.sdf")
         pyrosim.End()
 
-    def Generate_Link(self, shape, linkNumber, hasSensor, position, length, width, height):
-        if hasSensor:
-            self.linksWithSensors.append(linkNumber)
-        x, y, z = position
-
-        if shape == 'cube':
-            pyrosim.Send_Cube(name=f'link{linkNumber}', pos=[x,y,z] , size=[length,width,height], hasSensor=hasSensor)
-        elif shape == 'cylinder':
-            pyrosim.Send_Cylinder(name=f'link{linkNumber}', pos=[x,y,z] , length=length, radius=length/2, hasSensor=hasSensor)
-        elif shape == 'sphere':
-            pyrosim.Send_Sphere(name=f'link{linkNumber}', pos=[x,y,z] , radius=length/2, hasSensor=hasSensor)
-        else:
-            return 'Invalid shape'
-    
-        if linkNumber == 0:
-            pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [-c.length/2, 0, c.height], jointAxis="0 0 1")
-        elif linkNumber != c.numLinks-1:
-            pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [-length, 0, 0], jointAxis="0 0 1")
-        else:
-            return
-
-
     def Generate_Body(self):
         pyrosim.Start_URDF("body.urdf")
-        position = c.initPosition
         length, width, height = c.length, c.width, c.height
-
+        position = c.initPosition
+        axis = None
         for i in range(c.numLinks):
             self.Generate_Link(random.choice(c.linkShapes), 
                             i, random.choice([True, False]),
-                            position,
+                            position= position,
                             length= length,
                             width= width,
                             height= height)
-            length, width, height = random.uniform(0.5, 2), random.uniform(0.5, 1), random.uniform(0.5, 1)
-            position = [-length/2, 0, 0]
+            prevAxis = axis
+            axis = random.choice(['x', 'y']) #, 'z'])
+            dir = [random.choice([-1, 1]), random.choice([-1, 1]), random.choice([-1, 1])]
+
+            length, width, height = random.uniform(0.5, 1), random.uniform(0.5, 1), random.uniform(0.5, 1)
+            self.Generate_Joints(axis, prevAxis, dir, i, length, width, height, position)
+
+            match axis:
+                case 'x':
+                    position = [dir[0]*length/2, 0, 0]
+                case 'y':
+                    position = [0, dir[1]*length/2, 0]
+                case 'z':
+                    position = [0, 0, dir[2]*length/2]
+            
         pyrosim.End()
         self.init_weights()
+
+    def Generate_Link(self, shape, linkNumber, hasSensor, position, length, width, height):
+        if hasSensor:
+            self.linksWithSensors.append(linkNumber)
+
+        if shape == 'cube':
+            pyrosim.Send_Cube(name=f'link{linkNumber}', pos=position , size=[length,width,height], hasSensor=hasSensor)
+        elif shape == 'cylinder':
+            pyrosim.Send_Cylinder(name=f'link{linkNumber}', pos=position , length=length/2, radius=length/2, hasSensor=hasSensor)
+        elif shape == 'sphere':
+            pyrosim.Send_Sphere(name=f'link{linkNumber}', pos=position , radius=length/2, hasSensor=hasSensor)
+        else:
+            return 'Invalid shape'
+
+    def Generate_Joints(self, axis, prevAxis, dir, linkNumber, length, width, height, position):
+        print(axis, linkNumber, position, length, width, height)
+        match axis:
+            case 'x':
+                if linkNumber == 0 or prevAxis == None:
+                    pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [dir[0]*c.length/2, 0, position[2]], jointAxis="1 0 0")
+                elif linkNumber != c.numLinks-1:
+                    # if prevAxis == 'y':
+                    #     pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [dir*length/2, dir*width/2, 0], jointAxis="1 0 0")
+                    pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [-length, 0, 0], jointAxis="1 0 0")
+                else:
+                    return
+            case 'y':
+                if linkNumber == 0:
+                    pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [0, -c.length/2, position[2]], jointAxis="0 1 0")
+                elif linkNumber != c.numLinks-1:
+                    pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [0, -length, 0], jointAxis="0 1 0")
+                else:
+                    return
+            case 'z':
+                if linkNumber == 0:
+                    pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [0, 0, position[2]-c.length/2], jointAxis="0 0 1") # rotate around x/z plane 010
+                elif linkNumber != c.numLinks-1:
+                    pyrosim.Send_Joint( name = f'link{linkNumber}_link{linkNumber+1}' , parent= f'link{linkNumber}' , child = f'link{linkNumber+1}' , type = "revolute", position = [0, 0, -length], jointAxis="0 0 1")
+                else:
+                    return
 
     def Generate_Brain(self):
         pyrosim.Start_NeuralNetwork(f'brain{self.myID}.nndf')

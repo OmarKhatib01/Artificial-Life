@@ -1,8 +1,8 @@
 import numpy
 
-numLinks = 5
-linkShapes = ['cube', 'sphere', 'cylinder']
-initPosition = [0, 0, 1]
+numLinks = 2
+linkShapes = ['cube'] #, 'sphere', 'cylinder']
+initPosition = [0, 0, 3]
 length, width, height =1, 1, 1
 
 steps = 1000
