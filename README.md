@@ -37,6 +37,17 @@ The process described above is shown in the diagram below.
 
 ![diagram showing process of generating a random body link by link](assignment-7-cs-396-alife-diagram.png)
 
+## Assignment 8 - use the parallel hill climber to design morphology and behavior for locomotion.
+
+For this assignment I created a link class `link.py` which contains the methods to generate a link and a joint, in addition to a mutate function. The link class is called in `solution.py` to generate a random body. The body is then simulated in `simulation.py` and the fitness is calculated in `robot.py`. The fitness funtion simply minimizes the x position of the body. The fitness is then minimized through multiple parallel simulations over a number of generations to find the best performing creature. while mutating the body or the brain according to the diagram shown below. 
+
+![diagram showing process of mutating a body or brain](save/assignment-8-cs-396-alife-diagram.png)
+
+
+The fitness curves over 50 generations are shown below. Each line represents a different run of the program.
+
+![fitness curve over generations](save/fitness.png)
+
 
 
 
