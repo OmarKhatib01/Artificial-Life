@@ -35,7 +35,7 @@ The Generate_Brain() method adds motor neurons to all the joints and sensor neur
 
 The process described above is shown in the diagram below. 
 
-![diagram showing process of generating a random body link by link](assignment-7-cs-396-alife-diagram.png)
+![diagram showing process of generating a random body link by link](save/assignment-7-cs-396-alife-diagram.png)
 
 ## Assignment 8 - use the parallel hill climber to design morphology and behavior for locomotion.
 
@@ -44,12 +44,11 @@ For this assignment I created a link class `link.py` which contains the methods 
 ![diagram showing process of mutating a body or brain](save/assignment-8-cs-396-alife-diagram.png)
 
 
-The fitness curves over 50 generations are shown below. Each line represents a different run of the program.
+The fitness curves over 50 generations are shown below. Each line represents a different run of the program. This curve was plotted in `plot.py` using the data saved in the save folder.
 
 ![fitness curve over generations](save/fitness.png)
 
 
+## Limitations
 
-
-
-
+There are some issues with the evolution as the evolved creatures do not perform as well as needed. A solution could be to expand the body modifications done to include changing positions of joints and links, adding more links and joints or deleting them. Another solution could be to add more sensors to the body to allow for more complex behaviours. In addition, a larger population size could be used to allow for more diversity in the population and thus more likely to find a good solution and more generations could be run to allow for more time for the population to evolve.

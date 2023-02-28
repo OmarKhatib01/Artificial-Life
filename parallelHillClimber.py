@@ -78,9 +78,9 @@ class PARALLEL_HILL_CLIMBER:
                 bestParent = parent
         print(f'Best Parent: {bestParent}, Fitness: {minFitness}')
         self.parents[bestParent].Start_Simulation("GUI")
-        # df = pd. DataFrame(self.minfitnessList)
-        # df.to_csv("minfitnessList4.csv")
-        # self.parents[bestParent].Wait_For_Simulation_To_End()
+        df = pd. DataFrame(self.minfitnessList)
+        df.to_csv("save/minfitnessList4.csv")
+        self.parents[bestParent].Wait_For_Simulation_To_End()
         
 
         
