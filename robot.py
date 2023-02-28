@@ -12,6 +12,7 @@ class ROBOT:
     def __init__(self, solutionID):
         self.solutionID = solutionID
         self.robotId = p.loadURDF("body.urdf")
+        print(self.robotId)
         pyrosim.Prepare_To_Simulate(self.robotId)
         self.nn = NEURAL_NETWORK(f'brain{self.solutionID}.nndf')
         self.Prepare_To_Sense()
@@ -48,28 +49,28 @@ class ROBOT:
     def Get_Fitness(self):
         basePositionAndOrientation = p.getBasePositionAndOrientation(self.robotId)
         basePosition = basePositionAndOrientation[0]
-        zPosition = basePosition[2]
-        # f = open(f'tmp{self.solutionID}.txt', "w")
-        # f.write(str(zPosition))
-
-
-        relevantLinks = ['BackLowerleg', 'FrontLowerleg', 'LeftLowerleg', 'RightLowerleg']
-        self.SensorValues = []
-        for linkName in relevantLinks:
-            self.SensorValues.append(numpy.mean(self.sensors[linkName].sensorValues))
-        
-        flattenedSensorValues = numpy.ravel(self.SensorValues, order='F')
-        splitSensorValues = numpy.split(flattenedSensorValues, numpy.where(numpy.diff(flattenedSensorValues) != 0)[0]+1)
-        maxLen = 0
-
-        for i in range(len(splitSensorValues)):
-            if splitSensorValues[i][0]== -1:
-                maxLen = max(maxLen, len(splitSensorValues[i]))
-
+        xPosition = basePosition[0]
         f = open(f'tmp{self.solutionID}.txt', "w")
+        f.write(str(xPosition))
+
+
+        # relevantLinks = ['BackLowerleg', 'FrontLowerleg', 'LeftLowerleg', 'RightLowerleg']
+        # self.SensorValues = []
+        # for linkName in relevantLinks:
+        #     self.SensorValues.append(numpy.mean(self.sensors[linkName].sensorValues))
+        
+        # flattenedSensorValues = numpy.ravel(self.SensorValues, order='F')
+        # splitSensorValues = numpy.split(flattenedSensorValues, numpy.where(numpy.diff(flattenedSensorValues) != 0)[0]+1)
+        # maxLen = 0
+
+        # for i in range(len(splitSensorValues)):
+        #     if splitSensorValues[i][0]== -1:
+        #         maxLen = max(maxLen, len(splitSensorValues[i]))
+
+        # f = open(f'tmp{self.solutionID}.txt', "w")
         # Divide by 4 because each step is 4 values. This is because the sensor values are stored in a 2D array and then flattened
         # Multiply zposition by 60 to scale it to the same range as maxLen.
         # estimate but it seems to work
-        f.write(str(maxLen//4+zPosition*60))
+        # f.write(str(maxLen//4+zPosition*60))
         f.close()
         os.system(f'mv tmp{self.solutionID}.txt fitness{self.solutionID}.txt')
