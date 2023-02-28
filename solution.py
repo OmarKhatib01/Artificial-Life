@@ -88,9 +88,9 @@ class SOLUTION:
                 case 'x':
                     position = [-length/2, 0, 0]
                 case 'y':
-                    position = [0, -length/2, 0]
+                    position = [0, -width/2, 0]
                 case 'z':
-                    position = [0, 0, -length/2]
+                    position = [0, 0, -height/2]
             
         pyrosim.End()
         self.init_weights()
@@ -117,16 +117,17 @@ class SOLUTION:
         pyrosim.End()
 
     def Mutate(self):
-
+        choice = random.choice([0, 1])
         # mutate brain
-        row = random.randint(0, self.numSensorNeurons-1)
-        column = random.randint(0, self.numMotorNeurons-1)
-        self.weights[row, column] = random.random() * 2 - 1
-
-        # mutate body
-        linkNumber = random.randint(1, c.numLinks-1)
-        self.links[linkNumber].Mutate()
-        self.modifyBody()
+        if choice == 0:
+            row = random.randint(0, self.numSensorNeurons-1)
+            column = random.randint(0, self.numMotorNeurons-1)
+            self.weights[row, column] = random.random() * 2 - 1
+        else:
+            # mutate body
+            linkNumber = random.randint(1, c.numLinks-1)
+            self.links[linkNumber].Mutate()
+            self.modifyBody()
 
     
 
