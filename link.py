@@ -6,7 +6,7 @@ import constants as c
 import numpy
 
 class LINK:
-    def __init__(self, shape, linkNumber, hasSensor, position, length, width, height, prevAxis=None):
+    def __init__(self, shape, linkNumber, hasSensor, position, jointAxis, length, width, height, prevAxis=None):
         self.shape = shape
         self.linkNumber = linkNumber
         self.hasSensor = hasSensor
@@ -15,6 +15,7 @@ class LINK:
         self.width = width
         self.height = height
         self.prevAxis = prevAxis
+        self.jointAxis = jointAxis
     
     def Generate_Link(self):
 
@@ -34,39 +35,39 @@ class LINK:
         self.axis = axis
         match self.axis:
             case 'x':
-                if self.linkNumber == 0 and self.prevAxis == None:
-                    pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [-c.length/2, 0, self.position[2]], jointAxis="1 0 0")
+                if self.linkNumber == 0 :
+                    pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [c.length/2, 0, self.position[2]], jointAxis=self.jointAxis)
                 elif self.linkNumber != c.numLinks-1:
                     if self.prevAxis == 'y':
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [-self.length/2, -self.width/2, 0], jointAxis="1 0 0")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [self.length/2, self.width/2, 0], jointAxis=self.jointAxis)
                     elif self.prevAxis == 'z':
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [-self.length/2, 0, -self.height/2], jointAxis="1 0 0")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [self.length/2, 0, self.height/2], jointAxis=self.jointAxis)
                     else:
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [-self.length, 0, 0], jointAxis="1 0 0")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [self.length, 0, 0], jointAxis=self.jointAxis)
                 else:
                     return
             case 'y':
                 if self.linkNumber == 0 and self.prevAxis == None:
-                    pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, -c.length/2, self.position[2]], jointAxis="0 1 0")
+                    pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, c.width/2, self.position[2]], jointAxis=self.jointAxis)
                 elif self.linkNumber != c.numLinks-1:
                     if self.prevAxis == 'x':
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [-self.length/2, -self.width/2, 0], jointAxis="0 1 0")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [self.length/2, self.width/2, 0], jointAxis=self.jointAxis)
                     elif self.prevAxis == 'z':
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, -self.length/2, -self.height/2], jointAxis="0 1 0")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, self.width/2, self.height/2], jointAxis=self.jointAxis)
                     else:
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, -self.length, 0], jointAxis="0 1 0")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, self.width, 0], jointAxis=self.jointAxis)
                 else:
                     return
             case 'z':
                 if self.linkNumber == 0 and self.prevAxis == None:
-                    pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, 0, c.initPosition[2]-c.length/2], jointAxis="0 0 1")
+                    pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, 0, c.initPosition[2]+c.length/2], jointAxis=self.jointAxis)
                 elif self.linkNumber != c.numLinks-1:
                     if self.prevAxis == 'x':
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [-self.length/2, 0, -self.height/2], jointAxis="0 0 1")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [self.length/2, 0, self.height/2], jointAxis=self.jointAxis)
                     elif self.prevAxis == 'y':
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0,-self.width/2, -self.height/2], jointAxis="0 0 1")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0,self.width/2, self.height/2], jointAxis=self.jointAxis)
                     else:
-                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, 0, -self.height], jointAxis="0 0 1")
+                        pyrosim.Send_Joint( name = f'link{self.linkNumber}_link{self.linkNumber+1}' , parent= f'link{self.linkNumber}' , child = f'link{self.linkNumber+1}' , type = "revolute", position = [0, 0, self.height], jointAxis=self.jointAxis)
                 else:
                     return
 
@@ -74,14 +75,19 @@ class LINK:
     def Mutate(self):
         # choose one property to mutate
         # mutate that property
-        choice = random.randint(0, 3)
+        # print(f'Link {self.linkNumber}: {self.shape}, {self.length}, {self.width}, {self.height}')
+
+        choice = random.randint(0, 4)
         if choice == 0:
             self.shape = random.choice(c.linkShapes)
         elif choice == 1:
-            self.length = random.uniform(0, c.length)
+            self.length = random.uniform(c.minSize, c.maxSize)
         elif choice == 2:
-            self.width = random.uniform(0, c.length)
+            self.width = random.uniform(c.minSize, c.maxSize)
         elif choice == 3:
-            self.height = random.uniform(0, c.height)        
+            self.height = random.uniform(c.minSize, c.maxSize)  
+        elif choice == 4:
+            self.joinAxis = random.choice(c.jointAxes)    
         else:
             return 'Invalid choice'
+        # print(f'Link {self.linkNumber} mutated: {self.shape}, {self.length}, {self.width}, {self.height}')

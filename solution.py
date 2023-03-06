@@ -9,7 +9,8 @@ from collections import defaultdict
 from link import LINK
 
 class SOLUTION:
-    def __init__(self, id, seed = None):
+    def __init__(self, id, seed = None, mode='train'):
+        self.mode = mode
         self.seed = time.time() if seed == None else seed
         self.myID = id
         self.links = defaultdict(LINK)
@@ -51,7 +52,18 @@ class SOLUTION:
     def Start_Simulation(self, directOrGUI):
         self.Create_World()
         self.Generate_Brain()
-        os.system("python3 simulate.py " + directOrGUI + " " + str(self.myID) + " 2&>1 &")
+        if directOrGUI == "GUI": # only in beginning and showing best
+            # save the brain file as BEST_brain.nndf
+            os.system(f'cp brain{self.myID}.nndf bestBrain.nndf')
+        os.system(f"python3 simulate.py {directOrGUI}  {str(self.myID)} {self.mode} 2&>1 &")
+
+    def Wait_For_Simulation_To_End(self):
+        while not os.path.exists(f'fitness{str(self.myID)}.txt'):
+            time.sleep(0.01)
+        f = open(f'fitness{str(self.myID)}.txt', "r")
+        self.fitness = float(f.read())
+        f.close()
+        os.system(f'rm fitness{str(self.myID)}.txt')
 
     def Generate_Body(self):
         pyrosim.Start_URDF("body.urdf")
@@ -60,16 +72,21 @@ class SOLUTION:
         position = c.initPosition
         axis = None
         prevAxis = None
+        jointAxis = random.choice(c.jointAxes)
 
         for i in range(c.numLinks):
             if i == c.numLinks-1 and len(self.linksWithSensors) == 0:
                 self.hasSensor[i] = True
             if self.hasSensor[i]:
                 self.linksWithSensors.append(i)
+
+            prevAxis = axis
+
             self.links[i] = LINK(shape=random.choice(c.linkShapes),
             linkNumber=i ,
             hasSensor=self.hasSensor[i] ,
             position=position,
+            jointAxis=jointAxis,
             length=length,
             width=width,
             height=height,
@@ -77,47 +94,44 @@ class SOLUTION:
 
             self.links[i].Generate_Link()
 
-            prevAxis = axis
-            axis = random.choice(['x', 'y', 'z'])
+            axis = random.choice(c.axes)
             # dir = random.choice([-1, 1])
 
             self.links[i].Generate_Joints(axis)
         
-            length=width=height=random.uniform(0.5, 1)
-            match axis:
-                case 'x':
-                    position = [-length/2, 0, 0]
-                case 'y':
-                    position = [0, -width/2, 0]
-                case 'z':
-                    position = [0, 0, -height/2]
+            length, width, height= random.uniform(c.minSize, c.maxSize), random.uniform(c.minSize, c.maxSize), random.uniform(c.minSize, c.maxSize)
+            position = self.update_position(axis, length, width, height)
             
         pyrosim.End()
         self.init_weights()
 
+    def update_position(self, axis, length, width, height):
+        match axis:
+            case 'x':
+                position = [length/2, 0, 0]
+            case 'y':
+                position = [0, width/2, 0]
+            case 'z':
+                position = [0, 0, height/2]
+        return position
 
 
-    def Wait_For_Simulation_To_End(self):
-        while not os.path.exists(f'fitness{str(self.myID)}.txt'):
-            time.sleep(0.01)
-            # print("waiting for fitness file to be created")
-        f = open(f'fitness{str(self.myID)}.txt', "r")
-        self.fitness = float(f.read())
-        f.close()
-        # print("fitness: ", self.fitness)
-        os.system(f'rm fitness{str(self.myID)}.txt')
-
-    
     def modifyBody(self):
         pyrosim.Start_URDF("body.urdf")
         for i in range(len(self.links)):
+            # if i == 0:
+            #     self.links[i].position = c.initPosition
+            # else:
+            #     self.links[i].position = self.update_position(self.links[i].axis, self.links[i].length, self.links[i].width, self.links[i].height)
             self.links[i].Generate_Link()
             self.links[i].Generate_Joints(self.links[i].axis)
 
         pyrosim.End()
 
     def Mutate(self):
+        random.seed()
         choice = random.choice([0, 1])
+        # print("choice: ", choice)
         # mutate brain
         if choice == 0:
             row = random.randint(0, self.numSensorNeurons-1)
@@ -129,8 +143,5 @@ class SOLUTION:
             self.links[linkNumber].Mutate()
             self.modifyBody()
 
-    
 
-
-
-
+            
