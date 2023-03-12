@@ -9,19 +9,21 @@ from sensor import SENSOR
 from motor import MOTOR
 
 class ROBOT:
-    def __init__(self, solutionID, mode='train'):
+    def __init__(self, solutionID, mode='train', phc_run=0):
         self.solutionID = solutionID
-        self.robotId = p.loadURDF("body.urdf")
+        self.robotId = p.loadURDF(f"save/{phc_run}body.urdf")
         # print(self.robotId)
         pyrosim.Prepare_To_Simulate(self.robotId)
-
-        self.nn = NEURAL_NETWORK(f'brain{self.solutionID}.nndf')
+        if mode == 'train':
+            self.nn = NEURAL_NETWORK(f'{phc_run}brain{self.solutionID}.nndf')
+        else:
+            self.nn = NEURAL_NETWORK(f'save/{phc_run}brain{self.solutionID}.nndf')
 
         self.Prepare_To_Sense()
         self.Prepare_To_Act()
         
         if mode == 'train':
-            os.system(f'rm brain{self.solutionID}.nndf')
+            os.system(f'rm {phc_run}brain{self.solutionID}.nndf')
 
     def Prepare_To_Sense(self):
         self.sensors = {}

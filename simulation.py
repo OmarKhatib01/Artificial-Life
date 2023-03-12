@@ -10,16 +10,17 @@ import pybullet_data
 import time
 
 class SIMULATION:
-    def __init__(self, directOrGUI, solutionID, mode='train'):
+    def __init__(self, directOrGUI, solutionID, mode='train', phc_run=0):
         self.directOrGUI = directOrGUI
         self.physicsClient = p.connect(p.GUI) if directOrGUI == "GUI" else p.connect(p.DIRECT)
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,0)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0,0,-9.8)
         self.world = WORLD()
-        self.robot = ROBOT(solutionID, mode)
+        self.robot = ROBOT(solutionID, mode, phc_run)
 
     def Run(self):
+        print("Running Simulation")
         for i in range(c.steps):
             # print(i)
             if self.directOrGUI == "GUI":

@@ -6,17 +6,22 @@ import os
 import random
 import pandas as pd
 import numpy as np
+import time
 
 class PARALLEL_HILL_CLIMBER:
-    def __init__(self, mode='train'):
-        os.system('rm brain*.nndf')
+    def __init__(self, mode='train', phc_run=0, seed=None):
+        self.mode = mode
+        self.phc_run = phc_run
+        self.seed = time.time() if seed == None else seed
+        pd.DataFrame([self.seed]).to_csv("save/seeds.csv", mode='a', header=False, index=False)
+        os.system('rm *brain*.nndf')
         os.system('rm fitness*.txt')
         self.parents = {}
         self.nextAvailableID = 0
-        self.minfitnessList = []*c.numberOfGenerations
+        self.minfitnessList = np.zeros(c.numberOfGenerations)
         self.fitnessMat = np.zeros((c.numberOfGenerations, c.populationSize))
         for i in range(c.populationSize):
-            self.parents[i] = SOLUTION(self.nextAvailableID, mode)
+            self.parents[i] = SOLUTION(self.nextAvailableID, mode=self.mode, phc_run=self.phc_run, seed=self.seed)
             self.nextAvailableID += 1
 
     def Evolve(self):
@@ -31,7 +36,7 @@ class PARALLEL_HILL_CLIMBER:
         self.Evaluate(self.children, currentGeneration)
         self.printFitness()
         self.fitnessMat[currentGeneration] = [self.parents[parent].fitness for parent in self.parents.keys()]
-        self.minfitnessList.append(self.getGenMinFitness())
+        self.minfitnessList[currentGeneration] = self.getGenMinFitness()
         self.Select()
 
     def printFitness(self):
@@ -80,17 +85,16 @@ class PARALLEL_HILL_CLIMBER:
                 minFitness = self.parents[parent].fitness
                 bestParent = parent
         print(f'Best Parent: {bestParent}, Fitness: {minFitness}')
-        # save minfitnessList
-        # df = pd. DataFrame(self.minfitnessList)
-        # df.to_csv("save/minfitnessList4.csv")
-
+        self.bestParent = bestParent
         self.parents[bestParent].Start_Simulation("GUI")
         self.parents[bestParent].Wait_For_Simulation_To_End()   
         return bestParent     
 
     # save best brain and neural network
-    def Save_Best_Brain(self, bestParent):
-        # make BEST_brain.nndf
-        os.system(f'touch bestBrain.nndf')
+    def Save_Best(self):
         # copy brain
-        os.rename(f'bestBrain.nndf', f'brain{bestParent}.nndf')
+        os.rename(f'save/{self.phc_run}bestBrain.nndf', f'save/{self.phc_run}brain{self.bestParent}.nndf')
+    
+        # save minfitnessList
+        df = pd. DataFrame(self.minfitnessList)
+        df.to_csv(f"save/minfitnessList{self.phc_run}.csv")
