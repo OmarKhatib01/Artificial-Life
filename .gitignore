@@ -3,3 +3,4 @@ data
 *.pyc
 1
 fitness*.txt
+*.DS_Store
