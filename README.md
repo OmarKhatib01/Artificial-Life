@@ -35,6 +35,7 @@ The mutation process is done in the `mutate()` method in the `solution.py` class
 
 ![diagram showing process of mutating a body or brain](pics/alife-imgs-mutate.jpeg)
 
+* mutating the brain is done by randomly choosing a number of weights to change in the range [1, num_weights // 4], and randmly changing each of them in the weights matrix to a random value between -1 and 1
 * Randomly changing joint axis of a link to one of the options shown in the diagram above with uniform probability. Joint axis is of the form (x,y,z) where x,y,z are either 0 or 1, and 1 is freedom in that axis
 * Changing hasSensor is done by updating the hasSensor attrivute of the link by randomly choosing a boolean value with uniform probability (0.5), and then updating the `linksWithSensors` list accordingly, as well as the weights matrix by adding or removing a row and column of random weights
 * Modifying the body ends with a call to a `modifyBody()` method which regenerates the links and joints with the mutates values. 

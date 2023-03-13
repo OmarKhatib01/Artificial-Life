@@ -23,8 +23,8 @@ if args.type == 'evolve':
     ### uncomment to delete old seeds
     # seeds.txt is used to save the seed for each run so I can get random results (1st body of 1st gen)
     # delete seeds.txt to start fresh
-    # if os.path.exists('save/seeds.csv'):
-    #     os.remove('save/seeds.csv')
+    if os.path.exists('save/seeds.csv'):
+        os.remove('save/seeds.csv')
 
 
     ### uncomment to run parallel hill climber (evolve)
@@ -70,13 +70,13 @@ else:
         if pd.Series(file).str.contains('brain').any():
             identifiers.append(regex.findall(file))
     identifiers.sort()
-    print(identifiers)
     
 
     # run best brain simulation
     for i in range(args.run):
         print(identifiers[i])
-        os.system(f'python3 simulate.py GUI {identifiers[i][1]} show {identifiers[i][0]} 2&>1 &') # identifiers[i][0] = run number, identifiers[i][1] = brain id
+        # identifiers[i][0] = run number, identifiers[i][1] = brain id
+        os.system(f'python3 simulate.py GUI {identifiers[i][1]} show {identifiers[i][0]} 2&>1 &')
         time.sleep(20)
     # ----------------------------
 
