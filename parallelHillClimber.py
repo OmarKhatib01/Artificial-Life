@@ -90,7 +90,6 @@ class PARALLEL_HILL_CLIMBER:
         self.parents[bestParent].Wait_For_Simulation_To_End()   
         return bestParent     
 
-    # save best brain and neural network
     def Save_Best(self):
         # copy brain
         os.rename(f'save/{self.phc_run}bestBrain.nndf', f'save/{self.phc_run}brain{self.bestParent}.nndf')

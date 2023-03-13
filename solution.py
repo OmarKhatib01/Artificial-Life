@@ -1,6 +1,6 @@
 import random
 import time
-import numpy
+import numpy as np
 import pyrosim.pyrosim as pyrosim
 import pybullet as p
 import os
@@ -13,6 +13,7 @@ class SOLUTION:
         self.mode = mode
         self.phc_run = phc_run
         self.seed = time.time() if seed == None else seed
+        random.seed(self.seed)
         self.myID = id
 
         self.numLinks = c.numLinks
@@ -28,7 +29,7 @@ class SOLUTION:
     def init_weights(self):
         self.numSensorNeurons = len(self.linksWithSensors)
         self.numMotorNeurons = self.numLinks - 1
-        self.weights = numpy.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 - 1
+        self.weights = np.random.rand(self.numSensorNeurons, self.numMotorNeurons) * 2 - 1
     
     def Set_ID(self, id):
         self.myID = id
@@ -38,6 +39,7 @@ class SOLUTION:
         pyrosim.End()
 
     def Generate_Brain(self):
+        random.seed(self.seed)
         pyrosim.Start_NeuralNetwork(f'{self.phc_run}brain{self.myID}.nndf')
 
         for i in range(self.numSensorNeurons):
@@ -52,24 +54,6 @@ class SOLUTION:
             for currentColumn in range(self.numMotorNeurons):
                 pyrosim.Send_Synapse(sourceNeuronName = currentRow , targetNeuronName = currentColumn + self.numSensorNeurons  , weight = self.weights[currentRow, currentColumn])
         pyrosim.End()
-
-    def Start_Simulation(self, directOrGUI):
-        self.Create_World()
-        self.Generate_Brain()
-
-        if directOrGUI == "GUI": # only in beginning and showing best
-            # save the brain file as bestBrain.nndf
-            os.system(f'cp {self.phc_run}brain{self.myID}.nndf save/{self.phc_run}bestBrain.nndf')
-
-        os.system(f"python3 simulate.py {directOrGUI}  {str(self.myID)} {self.mode} {self.phc_run} 2&>1 &")
-
-    def Wait_For_Simulation_To_End(self):
-        while not os.path.exists(f'fitness{str(self.myID)}.txt'):
-            time.sleep(0.01)
-        f = open(f'fitness{str(self.myID)}.txt', "r")
-        self.fitness = float(f.read())
-        f.close()
-        os.system(f'rm fitness{str(self.myID)}.txt')
 
     def Generate_Body(self):
         pyrosim.Start_URDF(f'save/{self.phc_run}body.urdf')
@@ -120,7 +104,6 @@ class SOLUTION:
                 position = [0, 0, height/2]
         return position
 
-
     def modifyBody(self):
         pyrosim.Start_URDF(f'save/{self.phc_run}body.urdf')
         for i in range(self.numLinks):
@@ -131,8 +114,7 @@ class SOLUTION:
 
     def Mutate(self):
         random.seed()
-        choice = random.choice([1])
-        # print("choice: ", choice)
+        choice = random.choice([0, 1])
         # mutate brain
         if choice == 0:
             weightsToMutate = random.randint(1, (self.numSensorNeurons * self.numMotorNeurons)//2)
@@ -144,59 +126,55 @@ class SOLUTION:
             # mutate body
             linkNumber = random.randint(1, self.numLinks-1)
             choice = random.randint(1,6)
-            # print(f'mutating {self.linkNumber}: {choice}')
-            if choice == 0:
+            if choice == 0: # change link shape
                 self.links[linkNumber].shape = random.choice(c.linkShapes)
-            elif choice == 1:
+            elif choice == 1: # change link length
                 self.links[linkNumber].length = random.uniform(c.minSize, c.maxSize)
-            elif choice == 2:
+            elif choice == 2: # change link width
                 self.links[linkNumber].width = random.uniform(c.minSize, c.maxSize)
-            elif choice == 3:
+            elif choice == 3: # change link height
                 self.links[linkNumber].height = random.uniform(c.minSize, c.maxSize)  
-            elif choice == 4:
+            elif choice == 4: # change joint axis
                 self.links[linkNumber].joinAxis = random.choice(c.jointAxes)   
-            elif choice == 5:
+            elif choice == 5: # add/remove sensor
                 self.links[linkNumber].hasSensor = random.random() < 0.5
                 if self.links[linkNumber].hasSensor and linkNumber not in self.linksWithSensors:
                     self.linksWithSensors.append(linkNumber)
+                    # add row to weights
+                    self.weights = np.vstack((self.weights, np.random.rand(1, self.numMotorNeurons)*2-1))
+
                 elif not self.links[linkNumber].hasSensor and linkNumber in self.linksWithSensors:
                     self.linksWithSensors.remove(linkNumber)
-            elif choice == 6:
+                    # remove row from weights
+                    self.weights = np.delete(self.weights, self.numSensorNeurons-1, 0)   
+            elif choice == 6: # change link axis
                 self.links[linkNumber].axis = random.choice(c.axes)
                 if linkNumber != self.numLinks-1:
-                    self.links[linkNumber+1].prevAxis = self.links[linkNumber].axis
-            # elif choice == 7: # add link
-            #     if self.numLinks < c.maxLinks:
-            #         self.numLinks += 1
-            #         length, width, height= random.uniform(c.minSize, c.maxSize), random.uniform(c.minSize, c.maxSize), random.uniform(c.minSize, c.maxSize)
-
-            #         self.links[self.numLinks-1] = LINK(numLinks=self.numLinks,
-            #         shape=random.choice(c.linkShapes),
-            #         linkNumber=self.numLinks-1 ,
-            #         hasSensor=random.random() < 0.5 ,
-            #         position=self.update_position(self.links[self.numLinks-2].axis, length, width, height),
-            #         jointAxis=random.choice(c.jointAxes),
-            #         length=length,
-            #         width=width,
-            #         height=height,
-            #         prevAxis=self.links[self.numLinks-2].axis)
-
-            #         # update numLinks for all links
-            #         for i in range(self.numLinks):
-            #             self.links[i].numLinks = self.numLinks 
-
-            #         # add axis
-            #         self.links[self.numLinks-1].axis = random.choice(c.axes)
-
-            #         if self.links[self.numLinks-1].hasSensor:
-            #             self.linksWithSensors.append(self.numLinks-1)                    
+                    self.links[linkNumber+1].prevAxis = self.links[linkNumber].axis                    
             else:
                 return 'Invalid choice'
             
-            self.init_weights()
-            
-            # self.links[linkNumber].Mutate()
+            self.numSensorNeurons = len(self.linksWithSensors)
+            self.numMotorNeurons = self.numLinks - 1
             self.modifyBody()
+
+    def Start_Simulation(self, directOrGUI):
+        self.Create_World()
+        self.Generate_Brain()
+
+        if directOrGUI == "GUI": # only in beginning and showing best
+            # save the brain file as bestBrain.nndf
+            os.system(f'cp {self.phc_run}brain{self.myID}.nndf save/{self.phc_run}bestBrain.nndf')
+
+        os.system(f"python3 simulate.py {directOrGUI}  {str(self.myID)} {self.mode} {self.phc_run} 2&>1 &")
+
+    def Wait_For_Simulation_To_End(self):
+        while not os.path.exists(f'fitness{str(self.myID)}.txt'):
+            time.sleep(0.01)
+        f = open(f'fitness{str(self.myID)}.txt', "r")
+        self.fitness = float(f.read())
+        f.close()
+        os.system(f'rm fitness{str(self.myID)}.txt')
 
 
             

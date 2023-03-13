@@ -19,7 +19,7 @@ plt.ylabel('Fitness')
 plt.legend()
 
 # save the plot
-plt.savefig('save/fitness.png')
+plt.savefig('pics/fitness.png')
 
 # show the plot
 plt.show()
